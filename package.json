@@ -4,7 +4,7 @@
     "description": "feat API",
     "main": "src/server.ts",
     "scripts": {
-        "build": "del build && tsc",
+        "build": "tsc",
         "start": "node build/server.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
