@@ -16,7 +16,10 @@
     "author": "daniCsorba",
     "license": "ISC",
     "dependencies": {
+        "@discordjs/core": "^0.6.0",
+        "axios": "^1.4.0",
         "chalk": "^4.1.2",
+        "discord.js": "^14.11.0",
         "dotenv": "^16.0.3",
         "express": "^4.18.2",
         "joi": "^17.7.0",
