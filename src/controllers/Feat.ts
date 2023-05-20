@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Feat from '../models/Feat'; //Feat? or feat?
 import axios from 'axios';
+import APIKey from '../models/APIKey'; // Import the APIKey model
 
 const sendWebhookMessage = (featName: string) => {
     const webhookUrl = 'https://discord.com/api/webhooks/1108726527127978036/cQkMNMU1Gt0MWdeVR-U_m6xtzwvqP_NzbBmMIPiKrhB6Ljfu4o5iyoCCG5KmqQFRxIKh';
@@ -17,24 +18,33 @@ const sendWebhookMessage = (featName: string) => {
         });
 };
 
-const createFeat = (req: Request, res: Response, next: NextFunction) => {
+const createFeat = async (req: Request, res: Response, next: NextFunction) => {
     const { name, flavortext, prereq, benefit, source } = req.body;
+    const apiKey = req.headers.authorization;
 
-    const feat = new Feat({
-        _id: new mongoose.Types.ObjectId(),
-        name,
-        flavortext,
-        prereq,
-        benefit,
-        source
-    });
-    return feat
-        .save()
-        .then((feat) => {
-            sendWebhookMessage(feat.name); // Send webhook message with feat name
-            res.status(201).json({ feat });
-        })
-        .catch((error) => res.status(500).json({ error }));
+    try {
+        // Check if the API key exists in the database
+        const validApiKey = await APIKey.findOne({ key: apiKey });
+        if (!validApiKey) {
+            return res.status(401).json({ error: 'Invalid API key' });
+        }
+
+        const feat = new Feat({
+            _id: new mongoose.Types.ObjectId(),
+            name,
+            flavortext,
+            prereq,
+            benefit,
+            source
+        });
+
+        const savedFeat = await feat.save();
+
+        sendWebhookMessage(savedFeat.name);
+        res.status(201).json({ feat: savedFeat });
+    } catch (error) {
+        res.status(500).json({ error });
+    }
 };
 const readFeatID = (req: Request, res: Response, next: NextFunction) => {
     const featId = req.params.featId;
