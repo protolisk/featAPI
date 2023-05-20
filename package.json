@@ -15,6 +15,9 @@
     ],
     "author": "daniCsorba",
     "license": "ISC",
+    "engines": {
+        "node": ">=16.0.0 <17.0.0"
+    },
     "dependencies": {
         "@discordjs/core": "^0.6.0",
         "axios": "^1.4.0",
