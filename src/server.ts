@@ -110,7 +110,7 @@ const startServer = () => {
         }
     });
 
-    discordClient.login('MTEwOTM4NTg0NTk1OTU3NzcxMA.GQx9dP.0WkCcWGPxjQHYbLQfiYJAht8b7vP6NC7vh9-YY');
+    discordClient.login(config.discord.token);
 };
 
 function generateApiKey(length = 16) {
