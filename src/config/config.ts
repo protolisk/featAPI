@@ -17,6 +17,6 @@ export const config = {
         port: SERVER_PORT
     },
     discord: {
-        token: process.env.DISCORD_TOKEN || 'YOUR_DISCORD_TOKEN'
+        token: process.env.DISCORD_TOKEN
     }
 };

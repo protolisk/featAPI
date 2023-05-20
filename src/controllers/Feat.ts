@@ -64,28 +64,50 @@ const readAll = (req: Request, res: Response, next: NextFunction) => {
         .then((feats) => res.status(200).json({ feats }))
         .catch((error) => res.status(500).json({ error }));
 };
-const updateFeat = (req: Request, res: Response, next: NextFunction) => {
+const updateFeat = async (req: Request, res: Response, next: NextFunction) => {
     const featId = req.params.featId;
-    return Feat.findById(featId)
-        .then((feat) => {
-            if (feat) {
-                feat.set(req.body);
-                return feat
-                    .save()
-                    .then((feat) => res.status(201).json({ feat }))
-                    .catch((error) => res.status(500).json({ error }));
-            } else {
-                res.status(404).json({ message: 'Not found' });
-            }
-        })
-        .catch((error) => res.status(500).json({ error }));
-};
-const deleteFeat = (req: Request, res: Response, next: NextFunction) => {
-    const featId = req.params.featId;
+    const apiKey = req.headers.authorization;
 
-    return Feat.findByIdAndDelete(featId)
-        .then((feat) => (feat ? res.status(201).json({ message: 'deleted' }) : res.status(404).json({ message: 'Not found' })))
-        .catch((error) => res.status(500).json({ error }));
+    try {
+        // Check if the API key exists in the database
+        const validApiKey = await APIKey.findOne({ key: apiKey });
+        if (!validApiKey) {
+            return res.status(401).json({ error: 'Invalid API key' });
+        }
+
+        const feat = await Feat.findById(featId);
+        if (feat) {
+            feat.set(req.body);
+            const updatedFeat = await feat.save();
+            return res.status(201).json({ feat: updatedFeat });
+        } else {
+            return res.status(404).json({ message: 'Not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error });
+    }
+};
+
+const deleteFeat = async (req: Request, res: Response, next: NextFunction) => {
+    const featId = req.params.featId;
+    const apiKey = req.headers.authorization;
+
+    try {
+        // Check if the API key exists in the database
+        const validApiKey = await APIKey.findOne({ key: apiKey });
+        if (!validApiKey) {
+            return res.status(401).json({ error: 'Invalid API key' });
+        }
+
+        const feat = await Feat.findByIdAndDelete(featId);
+        if (feat) {
+            return res.status(201).json({ message: 'deleted' });
+        } else {
+            return res.status(404).json({ message: 'Not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error });
+    }
 };
 
 export default { createFeat, readFeatID, readFeat, readAll, updateFeat, deleteFeat };
