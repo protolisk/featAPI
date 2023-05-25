@@ -5,7 +5,7 @@ import { Schemas, ValidateSchema } from '../middleware/ValidateSchema';
 const router = express.Router();
 
 router.post('/create', ValidateSchema(Schemas.feat.create), controller.createFeat);
-router.get('/get/find', controller.readFeat);
+router.get('/get/find/:featName', controller.readFeat);
 router.get('/get/:featId', controller.readFeatID);
 router.get('/get/', controller.readAll);
 router.patch('/update/:featId', ValidateSchema(Schemas.feat.update), controller.updateFeat);

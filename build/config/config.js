@@ -16,5 +16,8 @@ exports.config = {
     },
     server: {
         port: SERVER_PORT
+    },
+    discord: {
+        token: process.env.DISCORD_TOKEN
     }
 };

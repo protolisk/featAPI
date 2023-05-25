@@ -54,10 +54,19 @@ const readFeatID = (req: Request, res: Response, next: NextFunction) => {
         .catch((error) => res.status(500).json({ error }));
 };
 const readFeat = (req: Request, res: Response, next: NextFunction) => {
-    const featName = req.body;
-    return Feat.findOne(featName)
-        .then((feat) => (feat ? res.status(200).json({ feat }) : res.status(404).json({ message: 'Feat not found' })))
-        .catch((error) => res.status(500).json({ error }));
+    const featName = req.params.featName; // Assuming the feat name is passed as a URL parameter
+
+    return Feat.findOne({ name: featName }) // Find the feat with the specified name
+        .then((feat) => {
+            if (feat) {
+                res.status(200).json({ feat });
+            } else {
+                res.status(404).json({ message: 'Feat not found' });
+            }
+        })
+        .catch((error) => {
+            res.status(500).json({ error });
+        });
 };
 const readAll = (req: Request, res: Response, next: NextFunction) => {
     return Feat.find()

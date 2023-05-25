@@ -60,37 +60,67 @@ const readFeatID = (req, res, next) => {
         .catch((error) => res.status(500).json({ error }));
 };
 const readFeat = (req, res, next) => {
-    const featName = req.body;
-    return Feat_1.default.findOne(featName)
-        .then((feat) => (feat ? res.status(200).json({ feat }) : res.status(404).json({ message: 'Feat not found' })))
-        .catch((error) => res.status(500).json({ error }));
+    const featName = req.params.featName; // Assuming the feat name is passed as a URL parameter
+    return Feat_1.default.findOne({ name: featName }) // Find the feat with the specified name
+        .then((feat) => {
+        if (feat) {
+            res.status(200).json({ feat });
+        }
+        else {
+            res.status(404).json({ message: 'Feat not found' });
+        }
+    })
+        .catch((error) => {
+        res.status(500).json({ error });
+    });
 };
 const readAll = (req, res, next) => {
     return Feat_1.default.find()
         .then((feats) => res.status(200).json({ feats }))
         .catch((error) => res.status(500).json({ error }));
 };
-const updateFeat = (req, res, next) => {
+const updateFeat = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const featId = req.params.featId;
-    return Feat_1.default.findById(featId)
-        .then((feat) => {
+    const apiKey = req.headers.authorization;
+    try {
+        // Check if the API key exists in the database
+        const validApiKey = yield APIKey_1.default.findOne({ key: apiKey });
+        if (!validApiKey) {
+            return res.status(401).json({ error: 'Invalid API key' });
+        }
+        const feat = yield Feat_1.default.findById(featId);
         if (feat) {
             feat.set(req.body);
-            return feat
-                .save()
-                .then((feat) => res.status(201).json({ feat }))
-                .catch((error) => res.status(500).json({ error }));
+            const updatedFeat = yield feat.save();
+            return res.status(201).json({ feat: updatedFeat });
         }
         else {
-            res.status(404).json({ message: 'Not found' });
+            return res.status(404).json({ message: 'Not found' });
         }
-    })
-        .catch((error) => res.status(500).json({ error }));
-};
-const deleteFeat = (req, res, next) => {
+    }
+    catch (error) {
+        res.status(500).json({ error });
+    }
+});
+const deleteFeat = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const featId = req.params.featId;
-    return Feat_1.default.findByIdAndDelete(featId)
-        .then((feat) => (feat ? res.status(201).json({ message: 'deleted' }) : res.status(404).json({ message: 'Not found' })))
-        .catch((error) => res.status(500).json({ error }));
-};
+    const apiKey = req.headers.authorization;
+    try {
+        // Check if the API key exists in the database
+        const validApiKey = yield APIKey_1.default.findOne({ key: apiKey });
+        if (!validApiKey) {
+            return res.status(401).json({ error: 'Invalid API key' });
+        }
+        const feat = yield Feat_1.default.findByIdAndDelete(featId);
+        if (feat) {
+            return res.status(201).json({ message: 'deleted' });
+        }
+        else {
+            return res.status(404).json({ message: 'Not found' });
+        }
+    }
+    catch (error) {
+        res.status(500).json({ error });
+    }
+});
 exports.default = { createFeat, readFeatID, readFeat, readAll, updateFeat, deleteFeat };
